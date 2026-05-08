@@ -1,9 +1,15 @@
 #include "Character/LTCharacter.h"
+#include "Character/LTHUD.h"
+#include "Core/LTProjectSettings.h"
+#include "Core/LTDebugSubsystem.h"
+#include "Data/LTCharacterSet.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "LyraAnim/Data/LASettings.h"
 
 ALTCharacter::ALTCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -14,8 +20,10 @@ ALTCharacter::ALTCharacter(const FObjectInitializer& ObjectInitializer)
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bStrafeMovement = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+	bUseControllerRotationYaw = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -29,6 +37,38 @@ ALTCharacter::ALTCharacter(const FObjectInitializer& ObjectInitializer)
 	FrontCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FrontCamera"));
 	FrontCamera->SetupAttachment(RootComponent);
 	FrontCamera->bAutoActivate = false;
+}
+
+void ALTCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ULTDebugSubsystem* DebugSS = GetGameInstance()->GetSubsystem<ULTDebugSubsystem>();
+	const FLTDebugState& State = DebugSS->GetDebugState();
+
+	GetCharacterMovement()->MaxAcceleration = State.CMCParams.MaxAcceleration;
+	GetCharacterMovement()->BrakingDecelerationWalking = State.CMCParams.BrakingDeceleration;
+	GetCharacterMovement()->MaxWalkSpeed = State.CMCParams.MaxWalkSpeed;
+	if (CameraBoom)
+	{
+		CameraBoom->TargetArmLength = State.CMCParams.CameraArmLength;
+	}
+
+	bStrafeMovement = State.bStrafeMovement;
+	GetCharacterMovement()->bOrientRotationToMovement = !bStrafeMovement;
+	bUseControllerRotationYaw = bStrafeMovement;
+
+	ApplyCharacterSet(State.CharacterSetIndex);
+
+	if (ULASettings* LAS = ULASettings::Get())
+	{
+		LAS->SetToggleSettings(State.ToggleSettings);
+	}
+
+	if (State.bFrontCameraActive)
+	{
+		ToggleFrontCamera();
+	}
 }
 
 void ALTCharacter::Tick(float DeltaSeconds)
@@ -68,6 +108,58 @@ void ALTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this, &ALTCharacter::JumpStarted);
 		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Completed, this, &ALTCharacter::JumpCompleted);
 	}
+	if (DebugPanelAction)
+	{
+		EnhancedInput->BindAction(DebugPanelAction, ETriggerEvent::Started, this, &ALTCharacter::ToggleDebugPanel);
+	}
+
+	PlayerInputComponent->BindAxis(TEXT("MouseWheelAxis"), this, &ALTCharacter::OnMouseWheel);
+}
+
+bool ALTCharacter::ApplyCharacterSet(int32 Index)
+{
+	const ULTProjectSettings* Settings = ULTProjectSettings::Get();
+	if (!Settings || !Settings->CharacterSets.IsValidIndex(Index))
+	{
+		return false;
+	}
+
+	const ULTCharacterSet* CharacterSet = Settings->CharacterSets[Index].LoadSynchronous();
+	return ApplyCharacterSetAsset(CharacterSet, Index);
+}
+
+bool ALTCharacter::ApplyCharacterSetAsset(const ULTCharacterSet* CharacterSet, int32 Index)
+{
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	if (!MeshComponent || !CharacterSet || !CharacterSet->SkeletalMesh || !CharacterSet->AnimClass)
+	{
+		return false;
+	}
+
+	for (const TSubclassOf<UAnimInstance>& LayerClass : ActiveLinkedAnimClasses)
+	{
+		if (LayerClass)
+		{
+			MeshComponent->UnlinkAnimClassLayers(LayerClass);
+		}
+	}
+	ActiveLinkedAnimClasses.Reset();
+
+	MeshComponent->SetSkeletalMesh(CharacterSet->SkeletalMesh);
+	MeshComponent->SetAnimInstanceClass(CharacterSet->AnimClass);
+
+	for (const TSubclassOf<UAnimInstance>& LayerClass : CharacterSet->LinkedAnimClasses)
+	{
+		if (LayerClass)
+		{
+			MeshComponent->LinkAnimClassLayers(LayerClass);
+			ActiveLinkedAnimClasses.Add(LayerClass);
+		}
+	}
+
+	CurrentCharacterSetIndex = Index;
+	OnCharacterSetChanged.Broadcast(CurrentCharacterSetIndex);
+	return true;
 }
 
 void ALTCharacter::Move(const FInputActionValue& Value)
@@ -111,6 +203,11 @@ void ALTCharacter::ToggleFrontCamera()
 		FrontCamera->Deactivate();
 		FollowCamera->Activate();
 	}
+
+	if (ULTDebugSubsystem* DS = GetGameInstance()->GetSubsystem<ULTDebugSubsystem>())
+	{
+		DS->CaptureCurrentState(CurrentCharacterSetIndex, bStrafeMovement, bFrontCameraActive);
+	}
 }
 
 void ALTCharacter::ToggleStrafe()
@@ -118,6 +215,11 @@ void ALTCharacter::ToggleStrafe()
 	bStrafeMovement = !bStrafeMovement;
 	GetCharacterMovement()->bOrientRotationToMovement = !bStrafeMovement;
 	bUseControllerRotationYaw = bStrafeMovement;
+
+	if (ULTDebugSubsystem* DS = GetGameInstance()->GetSubsystem<ULTDebugSubsystem>())
+	{
+		DS->CaptureCurrentState(CurrentCharacterSetIndex, bStrafeMovement, bFrontCameraActive);
+	}
 }
 
 void ALTCharacter::JumpStarted()
@@ -130,6 +232,17 @@ void ALTCharacter::JumpCompleted()
 	StopJumping();
 }
 
+void ALTCharacter::ToggleDebugPanel()
+{
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		if (ALTHUD* HUD = Cast<ALTHUD>(PC->GetHUD()))
+		{
+			HUD->ToggleDebugPanel();
+		}
+	}
+}
+
 void ALTCharacter::UpdateFrontCamera()
 {
 	const FVector TargetPos = GetActorLocation() + FrontCameraWorldOffset;
@@ -139,4 +252,29 @@ void ALTCharacter::UpdateFrontCamera()
 	FRotator LookRot = ToActor.Rotation();
 	LookRot.Pitch = FMath::Clamp(LookRot.Pitch, -30.0f, 30.0f);
 	FrontCamera->SetWorldRotation(LookRot);
+}
+
+void ALTCharacter::OnMouseWheel(float AxisValue)
+{
+	if (FMath::Abs(AxisValue) < KINDA_SMALL_NUMBER) return;
+
+	const ULTProjectSettings* Settings = ULTProjectSettings::Get();
+	if (!Settings) return;
+
+	UCharacterMovementComponent* CMC = GetCharacterMovement();
+	if (!CMC) return;
+
+	const float Step = Settings->SpeedScrollStep;
+	const float MinSpeed = Settings->MaxWalkSpeedRange.Min;
+	const float MaxSpeed = Settings->MaxWalkSpeedRange.Max;
+	const float CurrentSpeed = CMC->MaxWalkSpeed;
+	const float NewSpeed = FMath::Clamp(CurrentSpeed + AxisValue * Step, MinSpeed, MaxSpeed);
+	CMC->MaxWalkSpeed = NewSpeed;
+
+	if (ULTDebugSubsystem* DS = GetGameInstance()->GetSubsystem<ULTDebugSubsystem>())
+	{
+		FLTCMCParams P = DS->GetCMCParams();
+		P.MaxWalkSpeed = NewSpeed;
+		DS->SetCMCParams(P);
+	}
 }

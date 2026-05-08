@@ -8,6 +8,7 @@
 #include "Animation/AnimInstance.h"
 #include "LyraAnim/Data/LAAnimConfigDataAsset.h"
 #include "LyraAnim/Data/LATypes.h"
+#include "LyraAnim/Data/LASettings.h"
 #include "LAAnimInstance.generated.h"
 
 class UAbilitySystemComponent;
@@ -71,6 +72,9 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable)
 	void SetGait(ELAGait InTargetGait);
+
+	UFUNCTION(BlueprintPure, Category = "Animation")
+	FLAAnimToggleSettings GetAnimToggleSettings() const;
 
 protected:
 
@@ -173,5 +177,9 @@ protected:
 	 */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Movement")
 	ELAGait DesireGait = ELAGait::Running;
+	
+	
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Config")
+	FLAAnimToggleSettings AnimToggleSettings;
 
 };

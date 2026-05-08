@@ -12,20 +12,30 @@ class LOCOMOTIONTEMPLATE_API ULTDebugSubsystem : public UGameInstanceSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	UFUNCTION(BlueprintPure, Category = "Locomotion|Debug")
-	const FLTToggleSettings& GetToggleSettings() const;
+	const FLTCMCParams& GetCMCParams() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Locomotion|Debug")
-	void SetToggleSettings(const FLTToggleSettings& InSettings);
+	void SetCMCParams(const FLTCMCParams& InParams);
+
+	UFUNCTION(BlueprintPure, Category = "Locomotion|Debug")
+	const FLTDebugState& GetDebugState() const { return DebugState; }
+
+	UFUNCTION(BlueprintCallable, Category = "Locomotion|Debug")
+	void SetDebugState(const FLTDebugState& InState);
 
 	UFUNCTION(BlueprintCallable, Category = "Locomotion|Debug")
 	void ResetToDefaults();
 
-	UPROPERTY(BlueprintAssignable, Category = "Locomotion|Debug")
-	FLTToggleChanged OnToggleChanged;
+	void CaptureCurrentState(int32 InCharSetIndex, bool bInStrafe, bool bInFrontCamera);
+	void SaveToFile();
+	bool LoadFromFile();
 
 private:
-	FLTToggleSettings Settings;
-	FLTToggleSettings Defaults;
+	FLTDebugState DebugState;
+	FLTDebugState DefaultState;
+
+	static FString GetSaveFilePath();
 };

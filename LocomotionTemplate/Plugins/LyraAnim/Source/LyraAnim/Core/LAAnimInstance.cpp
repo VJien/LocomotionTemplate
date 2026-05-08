@@ -54,6 +54,12 @@ void ULAAnimInstance::SetGait(ELAGait InTargetGait)
 	DesireGait = InTargetGait;
 }
 
+FLAAnimToggleSettings ULAAnimInstance::GetAnimToggleSettings() const
+{
+	const ULASettings* Settings = ULASettings::GetConst();
+	return Settings ? Settings->GetToggleSettings() : FLAAnimToggleSettings();
+}
+
 #if WITH_EDITOR
 EDataValidationResult ULAAnimInstance::IsDataValid(FDataValidationContext& Context) const
 {
@@ -144,6 +150,6 @@ void ULAAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	const FLACharacterGroundInfo& GroundInfo = GetGroundInfo();
 	GroundDistance = GroundInfo.GroundDistance;
-	
+	AnimToggleSettings = GetAnimToggleSettings();
 }
 

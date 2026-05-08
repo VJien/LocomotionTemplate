@@ -229,15 +229,24 @@ public:
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Settings|Warping")
 	float StrideWarpingBlendInStartOffset = 0.15f;
+	
+	/** Orientation Warping 旋转插值速度 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Settings|Warping")
+	float OrientationWarpingInterpSpeed = 10.f;
 
-		/**
-		 * Orientation Warping 旋转插值速度
-		 * Interpolation speed for Orientation Warping to rotate lower body toward movement direction.
-		 * Higher = snappier response, Lower = smoother transition.
-		 */
-		UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Settings|Warping")
-		float OrientationWarpingInterpSpeed = 10.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Settings|Warping", meta=(ClampMin="0", ClampMax="1"))
+	float StartStrideWarpingWeight = 1.0f;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Settings|Warping", meta=(ClampMin="0", ClampMax="1"))
+	float StopStrideWarpingWeight = 1.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Settings|Warping", meta=(ClampMin="0", ClampMax="1"))
+	float CycleStrideWarpingWeight = 1.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Settings|Warping", meta=(ClampMin="0", ClampMax="1"))
+	float PivotStrideWarpingWeight = 1.0f;
+
+	
 	// --- PlayRate / 播放速率 ---
 
 	/**
@@ -534,7 +543,7 @@ public:
 	 * Authoring speed of the jog cycle animation when it has no Root Motion.
 	 * Used for SetPlayrateToMatchSpeed calculations.
 	 */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Cycle", meta=(EditCondition="!bJogCycleAnimHasRootMotion", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Cycle", meta=(EditCondition="!bJogCycleAnimHasRootMotion && !bUseBlendSpaceCycle", EditConditionHides))
 	float JogCycleSpeed = 600.f;
 
 	/**
@@ -553,7 +562,7 @@ public:
 	/**
 	 * 慢走循环动画手动速度 (无 Root Motion 时使用)
 	 */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Cycle", meta=(EditCondition="!bWalkCycleAnimHasRootMotion", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Cycle", meta=(EditCondition="!bWalkCycleAnimHasRootMotion && !bUseBlendSpaceCycle", EditConditionHides))
 	float WalkCycleSpeed = 300.f;
 
 	/**
@@ -572,7 +581,7 @@ public:
 	/**
 	 * 蹲走循环动画手动速度 (无 Root Motion 时使用)
 	 */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Cycle", meta=(EditCondition="!bCrouchCycleAnimHasRootMotion", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Cycle", meta=(EditCondition="!bCrouchCycleAnimHasRootMotion && !bUseBlendSpaceCycle", EditConditionHides))
 	float CrouchCycleSpeed = 200.f;
 
 	/**
@@ -581,7 +590,7 @@ public:
 	 * Only used when bUseBlendSpaceCycle is true.
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Cycle", meta=(EditCondition="bUseBlendSpaceCycle", EditConditionHides))
-	float MaxCycleSpeed = 600.f;
+	float BlendSpaceMaxSpeed = 600.f;
 
 	/**
 	 * 站立循环 BlendSpace
@@ -797,8 +806,11 @@ public:
 	 * Additive animation applied after landing to add recovery motion
 	 * (e.g., knees bending, body settling). Different per weapon type.
 	 */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Jump", meta=(EditCondition="bEnableLandAdditive", EditConditionHides))
-	TObjectPtr<UAnimSequence> Jump_RecoveryAdditive = nullptr;
+		UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Jump", meta=(EditCondition="bEnableLandAdditive", EditConditionHides))
+		TObjectPtr<UAnimSequence> Jump_RecoveryAdditive = nullptr;
+
+		UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation|Jump", meta=(EditCondition="bEnableLandAdditive", EditConditionHides, ClampMin="0", ClampMax="1"))
+		float LandRecoveryWeight = 1.0f;
 
 	// --- Aim / 瞄准偏移 ---
 

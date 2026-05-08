@@ -1,77 +1,103 @@
 #include "Core/LTDebugSubsystem.h"
+#include "Core/LTProjectSettings.h"
+#include "LyraAnim/Data/LASettings.h"
+#include "JsonObjectConverter.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+
+FString ULTDebugSubsystem::GetSaveFilePath()
+{
+	return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("LTDebugState.json"));
+}
 
 void ULTDebugSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-	Defaults = FLTToggleSettings();
-	Settings = Defaults;
+
+	if (const ULTProjectSettings* PS = ULTProjectSettings::Get())
+	{
+		DefaultState.CMCParams.MaxAcceleration = PS->MaxAccelerationRange.Default;
+		DefaultState.CMCParams.BrakingDeceleration = PS->BrakingDecelerationRange.Default;
+		DefaultState.CMCParams.MaxWalkSpeed = PS->MaxWalkSpeedRange.Default;
+		DefaultState.CMCParams.CameraArmLength = PS->CameraArmLengthRange.Default;
+	}
+
+	DefaultState.ToggleSettings = ULASettings::GetConst()
+		? ULASettings::GetConst()->GetToggleSettings()
+		: FLAAnimToggleSettings();
+
+	DebugState = DefaultState;
+
+	LoadFromFile();
 }
 
-const FLTToggleSettings& ULTDebugSubsystem::GetToggleSettings() const
+void ULTDebugSubsystem::Deinitialize()
 {
-	return Settings;
+	SaveToFile();
+	Super::Deinitialize();
 }
 
-void ULTDebugSubsystem::SetToggleSettings(const FLTToggleSettings& InSettings)
+const FLTCMCParams& ULTDebugSubsystem::GetCMCParams() const
 {
-	if (Settings.bUseBlendSpaceLoop != InSettings.bUseBlendSpaceLoop)
-	{
-		Settings.bUseBlendSpaceLoop = InSettings.bUseBlendSpaceLoop;
-		OnToggleChanged.Broadcast(FName(TEXT("bUseBlendSpaceLoop")), Settings.bUseBlendSpaceLoop);
-	}
-	if (Settings.bUseOrientationWarping != InSettings.bUseOrientationWarping)
-	{
-		Settings.bUseOrientationWarping = InSettings.bUseOrientationWarping;
-		OnToggleChanged.Broadcast(FName(TEXT("bUseOrientationWarping")), Settings.bUseOrientationWarping);
-	}
-	if (Settings.bEnableStart != InSettings.bEnableStart)
-	{
-		Settings.bEnableStart = InSettings.bEnableStart;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnableStart")), Settings.bEnableStart);
-	}
-	if (Settings.bEnableStop != InSettings.bEnableStop)
-	{
-		Settings.bEnableStop = InSettings.bEnableStop;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnableStop")), Settings.bEnableStop);
-	}
-	if (Settings.bEnableAimOffset != InSettings.bEnableAimOffset)
-	{
-		Settings.bEnableAimOffset = InSettings.bEnableAimOffset;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnableAimOffset")), Settings.bEnableAimOffset);
-	}
-	if (Settings.bEnableTurnInPlace != InSettings.bEnableTurnInPlace)
-	{
-		Settings.bEnableTurnInPlace = InSettings.bEnableTurnInPlace;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnableTurnInPlace")), Settings.bEnableTurnInPlace);
-	}
-	if (Settings.bEnablePivot != InSettings.bEnablePivot)
-	{
-		Settings.bEnablePivot = InSettings.bEnablePivot;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnablePivot")), Settings.bEnablePivot);
-	}
-	if (Settings.bEnableJump != InSettings.bEnableJump)
-	{
-		Settings.bEnableJump = InSettings.bEnableJump;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnableJump")), Settings.bEnableJump);
-	}
-	if (Settings.bEnableLean != InSettings.bEnableLean)
-	{
-		Settings.bEnableLean = InSettings.bEnableLean;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnableLean")), Settings.bEnableLean);
-	}
-	if (Settings.bEnableFootIK != InSettings.bEnableFootIK)
-	{
-		Settings.bEnableFootIK = InSettings.bEnableFootIK;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnableFootIK")), Settings.bEnableFootIK);
-	}
-	if (Settings.bEnableMotionMatching != InSettings.bEnableMotionMatching)
-	{
-		Settings.bEnableMotionMatching = InSettings.bEnableMotionMatching;
-		OnToggleChanged.Broadcast(FName(TEXT("bEnableMotionMatching")), Settings.bEnableMotionMatching);
-	}
+	return DebugState.CMCParams;
+}
+
+void ULTDebugSubsystem::SetCMCParams(const FLTCMCParams& InParams)
+{
+	DebugState.CMCParams = InParams;
+}
+
+void ULTDebugSubsystem::SetDebugState(const FLTDebugState& InState)
+{
+	DebugState = InState;
 }
 
 void ULTDebugSubsystem::ResetToDefaults()
 {
-	SetToggleSettings(Defaults);
+	DebugState = DefaultState;
+
+	if (ULASettings* LAS = ULASettings::Get())
+	{
+		LAS->SetToggleSettings(DefaultState.ToggleSettings);
+	}
+}
+
+void ULTDebugSubsystem::CaptureCurrentState(int32 InCharSetIndex, bool bInStrafe, bool bInFrontCamera)
+{
+	DebugState.CharacterSetIndex = InCharSetIndex;
+	DebugState.bStrafeMovement = bInStrafe;
+	DebugState.bFrontCameraActive = bInFrontCamera;
+}
+
+void ULTDebugSubsystem::SaveToFile()
+{
+	FString JsonStr;
+	if (FJsonObjectConverter::UStructToJsonObjectString(FLTDebugState::StaticStruct(), &DebugState, JsonStr, 0, 0))
+	{
+		FFileHelper::SaveStringToFile(JsonStr, *GetSaveFilePath(), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+	}
+}
+
+bool ULTDebugSubsystem::LoadFromFile()
+{
+	const FString FilePath = GetSaveFilePath();
+	if (!FPaths::FileExists(FilePath))
+	{
+		return false;
+	}
+
+	FString JsonStr;
+	if (!FFileHelper::LoadFileToString(JsonStr, *FilePath))
+	{
+		return false;
+	}
+
+	FLTDebugState LoadedState;
+	if (FJsonObjectConverter::JsonObjectStringToUStruct(JsonStr, &LoadedState, 0, 0))
+	{
+		DebugState = LoadedState;
+		return true;
+	}
+
+	return false;
 }

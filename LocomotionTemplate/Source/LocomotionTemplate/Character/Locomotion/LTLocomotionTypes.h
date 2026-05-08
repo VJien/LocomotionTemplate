@@ -1,45 +1,44 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LyraAnim/Data/LASettings.h"
 #include "LTLocomotionTypes.generated.h"
 
 USTRUCT(BlueprintType)
-struct FLTToggleSettings
+struct FLTCMCParams
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bUseBlendSpaceLoop = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CMC")
+	float MaxAcceleration = 2048.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bUseOrientationWarping = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CMC")
+	float BrakingDeceleration = 512.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnableStart = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CMC")
+	float MaxWalkSpeed = 600.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnableStop = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnableAimOffset = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnableTurnInPlace = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnablePivot = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnableJump = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnableLean = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnableFootIK = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
-	bool bEnableMotionMatching = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float CameraArmLength = 400.0f;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FLTToggleChanged, FName, PropertyName, bool, bNewValue);
+USTRUCT(BlueprintType)
+struct FLTDebugState
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category = "Debug")
+	FLTCMCParams CMCParams;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Debug")
+	FLAAnimToggleSettings ToggleSettings;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Debug")
+	int32 CharacterSetIndex = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Debug")
+	bool bStrafeMovement = true;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Debug")
+	bool bFrontCameraActive = false;
+};
