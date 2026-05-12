@@ -81,6 +81,17 @@ LocomotionTemplate/
 | `docs/stage-*.md` | 课程章节/PPT草稿 |
 | `docs/*.pptx` | PPT文件 |
 
+### 文档同步（Obsidian备份）
+
+docs目录需阶段性同步到Obsidian作为备份：
+
+```powershell
+robocopy "H:\UE_Projects\Locomotion\docs" "D:\BaiduSyncdisk\Obsidian\work\locomotion" /E /MIR /DCOPY:T /R:1 /W:1
+```
+
+- 时机：docs下文档有新增或修改后，阶段性执行同步。
+- `/MIR` 增量镜像，仅复制变更。
+
 ### 文档语言
 
 - 文档默认使用中文。
