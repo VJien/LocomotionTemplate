@@ -61,6 +61,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> DebugPanelAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> ScrollAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Front")
 	float FrontCameraDistance = 300.0f;
 
@@ -88,7 +91,7 @@ private:
 	void JumpStarted();
 	void JumpCompleted();
 	void ToggleDebugPanel();
-	void OnMouseWheel(float AxisValue);
+	void OnMouseWheel(const FInputActionValue& Value);
 
 	void UpdateFrontCamera();
 };

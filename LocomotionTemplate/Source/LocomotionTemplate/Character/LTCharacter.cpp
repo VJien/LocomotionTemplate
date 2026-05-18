@@ -113,8 +113,10 @@ void ALTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	{
 		EnhancedInput->BindAction(DebugPanelAction, ETriggerEvent::Started, this, &ALTCharacter::ToggleDebugPanel);
 	}
-
-	PlayerInputComponent->BindAxis(TEXT("MouseWheelAxis"), this, &ALTCharacter::OnMouseWheel);
+	if (ScrollAction)
+	{
+		EnhancedInput->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &ALTCharacter::OnMouseWheel);
+	}
 }
 
 bool ALTCharacter::ApplyCharacterSet(int32 Index)
@@ -255,8 +257,9 @@ void ALTCharacter::UpdateFrontCamera()
 	FrontCamera->SetWorldRotation(LookRot);
 }
 
-void ALTCharacter::OnMouseWheel(float AxisValue)
+void ALTCharacter::OnMouseWheel(const FInputActionValue& Value)
 {
+	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) < KINDA_SMALL_NUMBER) return;
 
 	const ULTProjectSettings* Settings = ULTProjectSettings::Get();
