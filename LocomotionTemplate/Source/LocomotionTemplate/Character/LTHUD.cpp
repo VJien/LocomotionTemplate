@@ -148,8 +148,12 @@ void ALTHUD::ShowHintBar()
 					{
 						const ALTCharacter* Character = Cast<ALTCharacter>(GetOwningPawn());
 						if (!Character) return FText::GetEmpty();
-						const float Speed = Character->GetCharacterMovement()->MaxWalkSpeed;
-						return FText::FromString(FString::Printf(TEXT("Speed: %.0f"), Speed));
+						const UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
+						return FText::FromString(FString::Printf(
+							TEXT("Speed: %.0f  |  Accel: %.0f  |  Brake: %.0f"),
+							Movement->MaxWalkSpeed,
+							Movement->MaxAcceleration,
+							Movement->BrakingDecelerationWalking));
 					})
 					.Font(FCoreStyle::GetDefaultFontStyle("Regular", 9))
 					.ColorAndOpacity(FLinearColor(0.9f, 0.9f, 0.9f, 1.0f))

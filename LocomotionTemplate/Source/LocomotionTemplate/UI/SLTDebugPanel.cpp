@@ -298,6 +298,21 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 				BuildCharacterSetSection()
 			]
 
+			+ SVerticalBox::Slot().AutoHeight().Padding(0, 0, 0, 6)
+			[
+				SNew(SBorder)
+				.Visibility(this, &SLTDebugPanel::GetCharacterSetDescriptionVisibility)
+				.BorderBackgroundColor(FLinearColor(0.08f, 0.08f, 0.08f, 0.9f))
+				.Padding(6.0f)
+				[
+					SNew(STextBlock)
+					.Text(this, &SLTDebugPanel::GetCurrentCharacterSetDescription)
+					.AutoWrapText(true)
+					.Font(FCoreStyle::GetDefaultFontStyle("Regular", 9))
+					.ColorAndOpacity(FLinearColor(0.85f, 0.85f, 0.85f))
+				]
+			]
+
 			// Reset
 			+ SVerticalBox::Slot().AutoHeight().Padding(0, 4, 0, 6)
 			[
@@ -382,6 +397,8 @@ TSharedRef<SWidget> SLTDebugPanel::BuildSliderRow(
 			.OnValueChanged_Lambda([MinValue, MaxValue, OnChanged](float Normalized)
 			{
 				float Denorm = MinValue + Normalized * (MaxValue - MinValue);
+				Denorm = FMath::RoundToFloat(Denorm / 5.0f) * 5.0f;
+				Denorm = FMath::Clamp(Denorm, MinValue, MaxValue);
 				OnChanged(Denorm);
 			})
 		]
@@ -407,6 +424,10 @@ TSharedRef<SWidget> SLTDebugPanel::BuildToggleRow(
 	TAttribute<bool> IsEnabledAttr)
 {
 	return SNew(SHorizontalBox)
+		.Visibility_Lambda([this, PropertyName]() -> EVisibility
+		{
+			return IsToggleVisibleForCurrentCharacterSet(PropertyName) ? EVisibility::Visible : EVisibility::Collapsed;
+		})
 		.IsEnabled(IsEnabledAttr)
 		+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
 		[
@@ -446,8 +467,9 @@ TSharedRef<SWidget> SLTDebugPanel::BuildConditionalToggleRow(
 			]
 		];
 
-	RowSlot->SetVisibility(TAttribute<EVisibility>::CreateLambda([this, IsEnabledAttr]() -> EVisibility
+	RowSlot->SetVisibility(TAttribute<EVisibility>::CreateLambda([this, PropertyName, IsEnabledAttr]() -> EVisibility
 	{
+		if (!IsToggleVisibleForCurrentCharacterSet(PropertyName)) return EVisibility::Collapsed;
 		if (!IsEnabledAttr.Get()) return EVisibility::Collapsed;
 		return EVisibility::Visible;
 	}));
@@ -684,6 +706,55 @@ FText SLTDebugPanel::GetCharacterSetDisplayName(int32 Index) const
 	}
 
 	return FText::FromString(FString::Printf(TEXT("Character %d"), Index + 1));
+}
+
+const ULTCharacterSet* SLTDebugPanel::GetCurrentCharacterSet() const
+{
+	if (!CachedCharacter.IsValid()) return nullptr;
+
+	const ULTProjectSettings* Settings = ULTProjectSettings::Get();
+	if (!Settings) return nullptr;
+
+	const int32 Index = CachedCharacter->GetCurrentCharacterSetIndex();
+	if (!Settings->CharacterSets.IsValidIndex(Index)) return nullptr;
+
+	return Settings->CharacterSets[Index].LoadSynchronous();
+}
+
+FText SLTDebugPanel::GetCurrentCharacterSetDescription() const
+{
+	const ULTCharacterSet* CharacterSet = GetCurrentCharacterSet();
+	return CharacterSet ? CharacterSet->Description : FText::GetEmpty();
+}
+
+EVisibility SLTDebugPanel::GetCharacterSetDescriptionVisibility() const
+{
+	return GetCurrentCharacterSetDescription().IsEmpty() ? EVisibility::Collapsed : EVisibility::Visible;
+}
+
+bool SLTDebugPanel::IsToggleVisibleForCurrentCharacterSet(FName PropertyName) const
+{
+	const ULTCharacterSet* CharacterSet = GetCurrentCharacterSet();
+	if (!CharacterSet) return true;
+
+	const FLAAnimToggleSettings& S = CharacterSet->DebugToggleVisibility;
+	if (PropertyName == TEXT("bUseBlendSpaceLoop")) return S.bUseBlendSpaceLoop;
+	else if (PropertyName == TEXT("bEnableStart")) return S.bEnableStart;
+	else if (PropertyName == TEXT("bEnableStartDM")) return S.bEnableStartDM;
+	else if (PropertyName == TEXT("bEnableStartStrideWarping")) return S.bEnableStartStrideWarping;
+	else if (PropertyName == TEXT("bEnableStop")) return S.bEnableStop;
+	else if (PropertyName == TEXT("bEnableStopDM")) return S.bEnableStopDM;
+	else if (PropertyName == TEXT("bEnableStopStrideWarping")) return S.bEnableStopStrideWarping;
+	else if (PropertyName == TEXT("bEnableCycleDM")) return S.bEnableCycleDM;
+	else if (PropertyName == TEXT("bEnableCycleStrideWarping")) return S.bEnableCycleStrideWarping;
+	else if (PropertyName == TEXT("bEnablePivot")) return S.bEnablePivot;
+	else if (PropertyName == TEXT("bEnablePivotStrideWarping")) return S.bEnablePivotStrideWarping;
+	else if (PropertyName == TEXT("bEnableAimOffset")) return S.bEnableAimOffset;
+	else if (PropertyName == TEXT("bEnableTurnInPlace")) return S.bEnableTurnInPlace;
+	else if (PropertyName == TEXT("bEnableFootIK")) return S.bEnableFootIK;
+	else if (PropertyName == TEXT("bEnableLean")) return S.bEnableLean;
+
+	return true;
 }
 
 // --- Status ---

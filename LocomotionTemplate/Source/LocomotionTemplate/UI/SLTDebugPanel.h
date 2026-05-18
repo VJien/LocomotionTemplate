@@ -4,6 +4,7 @@
 #include "Widgets/SCompoundWidget.h"
 
 class ULTDebugSubsystem;
+class ULTCharacterSet;
 class ULASettings;
 class ALTCharacter;
 class SSlider;
@@ -55,6 +56,10 @@ private:
 	FReply OnCharacterSetClicked(int32 Index);
 	FSlateColor GetCharacterSetButtonColor(int32 Index) const;
 	FText GetCharacterSetDisplayName(int32 Index) const;
+	const ULTCharacterSet* GetCurrentCharacterSet() const;
+	FText GetCurrentCharacterSetDescription() const;
+	EVisibility GetCharacterSetDescriptionVisibility() const;
+	bool IsToggleVisibleForCurrentCharacterSet(FName PropertyName) const;
 
 	bool IsBlendSpaceMode() const;
 	bool IsStartEnabled() const;

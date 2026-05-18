@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "InputCoreTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "LyraAnim/Data/LASettings.h"
 
@@ -264,17 +265,34 @@ void ALTCharacter::OnMouseWheel(float AxisValue)
 	UCharacterMovementComponent* CMC = GetCharacterMovement();
 	if (!CMC) return;
 
-	const float Step = Settings->SpeedScrollStep;
-	const float MinSpeed = Settings->MaxWalkSpeedRange.Min;
-	const float MaxSpeed = Settings->MaxWalkSpeedRange.Max;
-	const float CurrentSpeed = CMC->MaxWalkSpeed;
-	const float NewSpeed = FMath::Clamp(CurrentSpeed + AxisValue * Step, MinSpeed, MaxSpeed);
-	CMC->MaxWalkSpeed = NewSpeed;
+	const APlayerController* PC = Cast<APlayerController>(Controller);
+	const bool bAltDown = PC && (PC->IsInputKeyDown(EKeys::LeftAlt) || PC->IsInputKeyDown(EKeys::RightAlt));
+	const bool bCtrlDown = PC && (PC->IsInputKeyDown(EKeys::LeftControl) || PC->IsInputKeyDown(EKeys::RightControl));
 
 	if (ULTDebugSubsystem* DS = GetGameInstance()->GetSubsystem<ULTDebugSubsystem>())
 	{
 		FLTCMCParams P = DS->GetCMCParams();
-		P.MaxWalkSpeed = NewSpeed;
+		const float Step = Settings->SpeedScrollStep;
+
+		if (bAltDown)
+		{
+			const float NewValue = FMath::Clamp(CMC->MaxAcceleration + AxisValue * Step, Settings->MaxAccelerationRange.Min, Settings->MaxAccelerationRange.Max);
+			CMC->MaxAcceleration = NewValue;
+			P.MaxAcceleration = NewValue;
+		}
+		else if (bCtrlDown)
+		{
+			const float NewValue = FMath::Clamp(CMC->BrakingDecelerationWalking + AxisValue * Step, Settings->BrakingDecelerationRange.Min, Settings->BrakingDecelerationRange.Max);
+			CMC->BrakingDecelerationWalking = NewValue;
+			P.BrakingDeceleration = NewValue;
+		}
+		else
+		{
+			const float NewValue = FMath::Clamp(CMC->MaxWalkSpeed + AxisValue * Step, Settings->MaxWalkSpeedRange.Min, Settings->MaxWalkSpeedRange.Max);
+			CMC->MaxWalkSpeed = NewValue;
+			P.MaxWalkSpeed = NewValue;
+		}
+
 		DS->SetCMCParams(P);
 	}
 }
