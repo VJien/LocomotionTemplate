@@ -123,6 +123,30 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight().Padding(0, 0, 0, 6)
 			[
 				BuildSliderRow(
+					LOCTEXT("JumpZ", "跳跃力度"),
+					PS ? PS->JumpZVelocityRange.Min : 200.f,
+					PS ? PS->JumpZVelocityRange.Max : 1200.f,
+					TAttribute<float>::CreateLambda([this]() -> float
+					{
+						if (!DebugSubsystem.IsValid()) return 0.f;
+						return DebugSubsystem->GetCMCParams().JumpZVelocity;
+					}),
+					[this](float Val)
+					{
+						if (!DebugSubsystem.IsValid()) return;
+						FLTCMCParams P = DebugSubsystem->GetCMCParams();
+						P.JumpZVelocity = Val;
+						DebugSubsystem->SetCMCParams(P);
+						if (CachedCharacter.IsValid())
+						{
+							CachedCharacter->GetCharacterMovement()->JumpZVelocity = Val;
+						}
+					})
+			]
+
+			+ SVerticalBox::Slot().AutoHeight().Padding(0, 0, 0, 6)
+			[
+				BuildSliderRow(
 					LOCTEXT("CameraArm", "相机距离"),
 					PS ? PS->CameraArmLengthRange.Min : 100.f,
 					PS ? PS->CameraArmLengthRange.Max : 800.f,
@@ -351,6 +375,7 @@ void SLTDebugPanel::SetCharacter(TWeakObjectPtr<ALTCharacter> InCharacter)
 			auto* CMC = InCharacter->GetCharacterMovement();
 			P.MaxAcceleration = CMC->MaxAcceleration;
 			P.BrakingDeceleration = CMC->BrakingDecelerationWalking;
+			P.JumpZVelocity = CMC->JumpZVelocity;
 			P.MaxWalkSpeed = CMC->MaxWalkSpeed;
 			if (InCharacter->CameraBoom)
 			{

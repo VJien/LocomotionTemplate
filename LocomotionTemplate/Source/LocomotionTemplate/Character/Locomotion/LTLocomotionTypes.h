@@ -16,6 +16,9 @@ struct FLTCMCParams
 	float BrakingDeceleration = 512.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CMC")
+	float JumpZVelocity = 700.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CMC")
 	float MaxWalkSpeed = 600.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")

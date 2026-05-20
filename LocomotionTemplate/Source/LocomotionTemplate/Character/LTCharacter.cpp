@@ -49,6 +49,7 @@ void ALTCharacter::BeginPlay()
 
 	GetCharacterMovement()->MaxAcceleration = State.CMCParams.MaxAcceleration;
 	GetCharacterMovement()->BrakingDecelerationWalking = State.CMCParams.BrakingDeceleration;
+	GetCharacterMovement()->JumpZVelocity = State.CMCParams.JumpZVelocity;
 	GetCharacterMovement()->MaxWalkSpeed = State.CMCParams.MaxWalkSpeed;
 	if (CameraBoom)
 	{

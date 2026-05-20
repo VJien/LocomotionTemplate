@@ -18,6 +18,7 @@ void ULTDebugSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		DefaultState.CMCParams.MaxAcceleration = PS->MaxAccelerationRange.Default;
 		DefaultState.CMCParams.BrakingDeceleration = PS->BrakingDecelerationRange.Default;
+		DefaultState.CMCParams.JumpZVelocity = PS->JumpZVelocityRange.Default;
 		DefaultState.CMCParams.MaxWalkSpeed = PS->MaxWalkSpeedRange.Default;
 		DefaultState.CMCParams.CameraArmLength = PS->CameraArmLengthRange.Default;
 	}

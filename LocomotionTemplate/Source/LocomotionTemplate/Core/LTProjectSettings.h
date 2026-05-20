@@ -34,6 +34,9 @@ public:
 	FLTSliderRange BrakingDecelerationRange;
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "CMC")
+	FLTSliderRange JumpZVelocityRange;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "CMC")
 	FLTSliderRange MaxWalkSpeedRange;
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
