@@ -198,7 +198,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildConditionalToggleRow(
-					LOCTEXT("StartDM", "  起步距离适配"),
+					LOCTEXT("StartDM", "  起步Distance Matching"),
 					TEXT("bEnableStartDM"),
 					StartDMRow,
 					TAttribute<bool>::CreateLambda([this]() { return IsStartEnabled() && !IsBlendSpaceMode(); }))
@@ -208,7 +208,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildConditionalToggleRow(
-					LOCTEXT("StartSW", "  起步步幅修正"),
+					LOCTEXT("StartSW", "  起步Stride Warping"),
 					TEXT("bEnableStartStrideWarping"),
 					StartDMRow,
 					TAttribute<bool>::CreateLambda([this]() { return IsStartEnabled() && !IsBlendSpaceMode(); }))
@@ -227,7 +227,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildConditionalToggleRow(
-					LOCTEXT("StopDM", "  停步距离适配"),
+					LOCTEXT("StopDM", "  停步Distance Matching"),
 					TEXT("bEnableStopDM"),
 					StopDMRow,
 					TAttribute<bool>::CreateLambda([this]() { return IsStopEnabled() && !IsBlendSpaceMode(); }))
@@ -237,7 +237,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildConditionalToggleRow(
-					LOCTEXT("StopSW", "  停步步幅修正"),
+					LOCTEXT("StopSW", "  停步Stride Warping"),
 					TEXT("bEnableStopStrideWarping"),
 					StopDMRow,
 					TAttribute<bool>::CreateLambda([this]() { return IsStopEnabled() && !IsBlendSpaceMode(); }))
@@ -247,7 +247,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildToggleRow(
-					LOCTEXT("CycleDM", "循环距离适配"),
+					LOCTEXT("CycleDM", "循环Distance Matching"),
 					TEXT("bEnableCycleDM"),
 					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
 			]
@@ -256,7 +256,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildToggleRow(
-					LOCTEXT("CycleSW", "循环步幅修正"),
+					LOCTEXT("CycleSW", "循环Stride Warping"),
 					TEXT("bEnableCycleStrideWarping"),
 					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
 			]
@@ -265,7 +265,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildToggleRow(
-					LOCTEXT("Pivot", "转向动画"),
+					LOCTEXT("Pivot", "急转身"),
 					TEXT("bEnablePivot"),
 					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
 			]
@@ -274,7 +274,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildConditionalToggleRow(
-					LOCTEXT("PivotSW", "  转向步幅修正"),
+					LOCTEXT("PivotSW", "  转身Stride Warping"),
 					TEXT("bEnablePivotStrideWarping"),
 					PivotSWRow,
 					TAttribute<bool>::CreateLambda([this]() { return IsPivotEnabled() && !IsBlendSpaceMode(); }))
