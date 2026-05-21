@@ -61,7 +61,6 @@ private:
 	EVisibility GetCharacterSetDescriptionVisibility() const;
 	bool IsToggleVisibleForCurrentCharacterSet(FName PropertyName) const;
 
-	bool IsBlendSpaceMode() const;
 	bool IsStartEnabled() const;
 	bool IsStopEnabled() const;
 	bool IsPivotEnabled() const;

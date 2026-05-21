@@ -177,21 +177,12 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 				.ColorAndOpacity(FLinearColor(0.6f, 0.8f, 1.0f))
 			]
 
-			// BlendSpace Loop (master lock)
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				BuildToggleRow(
-					LOCTEXT("BSLoop", "BlendSpace 循环"),
-					TEXT("bUseBlendSpaceLoop"))
-			]
-
 			// Start
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				BuildToggleRow(
 					LOCTEXT("Start", "起步动画"),
-					TEXT("bEnableStart"),
-					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
+					TEXT("bEnableStart"))
 			]
 
 			// Start DM (conditional)
@@ -201,7 +192,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 					LOCTEXT("StartDM", "  起步Distance Matching"),
 					TEXT("bEnableStartDM"),
 					StartDMRow,
-					TAttribute<bool>::CreateLambda([this]() { return IsStartEnabled() && !IsBlendSpaceMode(); }))
+					TAttribute<bool>::CreateLambda([this]() { return IsStartEnabled(); }))
 			]
 
 			// Start StrideWarping (conditional)
@@ -211,7 +202,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 					LOCTEXT("StartSW", "  起步Stride Warping"),
 					TEXT("bEnableStartStrideWarping"),
 					StartDMRow,
-					TAttribute<bool>::CreateLambda([this]() { return IsStartEnabled() && !IsBlendSpaceMode(); }))
+					TAttribute<bool>::CreateLambda([this]() { return IsStartEnabled(); }))
 			]
 
 			// Stop
@@ -219,8 +210,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			[
 				BuildToggleRow(
 					LOCTEXT("Stop", "停步动画"),
-					TEXT("bEnableStop"),
-					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
+					TEXT("bEnableStop"))
 			]
 
 			// Stop DM (conditional)
@@ -230,7 +220,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 					LOCTEXT("StopDM", "  停步Distance Matching"),
 					TEXT("bEnableStopDM"),
 					StopDMRow,
-					TAttribute<bool>::CreateLambda([this]() { return IsStopEnabled() && !IsBlendSpaceMode(); }))
+					TAttribute<bool>::CreateLambda([this]() { return IsStopEnabled(); }))
 			]
 
 			// Stop StrideWarping (conditional)
@@ -240,7 +230,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 					LOCTEXT("StopSW", "  停步Stride Warping"),
 					TEXT("bEnableStopStrideWarping"),
 					StopDMRow,
-					TAttribute<bool>::CreateLambda([this]() { return IsStopEnabled() && !IsBlendSpaceMode(); }))
+					TAttribute<bool>::CreateLambda([this]() { return IsStopEnabled(); }))
 			]
 
 			// Cycle DM
@@ -248,8 +238,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			[
 				BuildToggleRow(
 					LOCTEXT("CycleDM", "循环Distance Matching"),
-					TEXT("bEnableCycleDM"),
-					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
+					TEXT("bEnableCycleDM"))
 			]
 
 			// Cycle StrideWarping
@@ -257,8 +246,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			[
 				BuildToggleRow(
 					LOCTEXT("CycleSW", "循环Stride Warping"),
-					TEXT("bEnableCycleStrideWarping"),
-					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
+					TEXT("bEnableCycleStrideWarping"))
 			]
 
 			// Pivot
@@ -266,8 +254,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			[
 				BuildToggleRow(
 					LOCTEXT("Pivot", "急转身"),
-					TEXT("bEnablePivot"),
-					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
+					TEXT("bEnablePivot"))
 			]
 
 			// Pivot StrideWarping (conditional)
@@ -277,7 +264,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 					LOCTEXT("PivotSW", "  转身Stride Warping"),
 					TEXT("bEnablePivotStrideWarping"),
 					PivotSWRow,
-					TAttribute<bool>::CreateLambda([this]() { return IsPivotEnabled() && !IsBlendSpaceMode(); }))
+					TAttribute<bool>::CreateLambda([this]() { return IsPivotEnabled(); }))
 			]
 
 			// AO
@@ -285,8 +272,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			[
 				BuildToggleRow(
 					LOCTEXT("AO", "瞄准偏移"),
-					TEXT("bEnableAimOffset"),
-					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
+					TEXT("bEnableAimOffset"))
 			]
 
 			// TIP (depends on AO)
@@ -295,7 +281,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 				BuildToggleRow(
 					LOCTEXT("TIP", "原地转向"),
 					TEXT("bEnableTurnInPlace"),
-					TAttribute<bool>::CreateLambda([this]() { return IsAOEnabled() && !IsBlendSpaceMode(); }))
+					TAttribute<bool>::CreateLambda([this]() { return IsAOEnabled(); }))
 			]
 
 			// FootIK
@@ -303,8 +289,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			[
 				BuildToggleRow(
 					LOCTEXT("FootIK", "脚步IK"),
-					TEXT("bEnableFootIK"),
-					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
+					TEXT("bEnableFootIK"))
 			]
 
 			// Lean
@@ -312,8 +297,7 @@ void SLTDebugPanel::Construct(const FArguments& InArgs)
 			[
 				BuildToggleRow(
 					LOCTEXT("Lean", "身体倾斜"),
-					TEXT("bEnableLean"),
-					TAttribute<bool>::CreateLambda([this]() { return !IsBlendSpaceMode(); }))
+					TEXT("bEnableLean"))
 			]
 
 			// Character Sets
@@ -512,8 +496,7 @@ ECheckBoxState SLTDebugPanel::IsToggleChecked(FName PropertyName) const
 	const FLAAnimToggleSettings& S = Settings->GetToggleSettings();
 	bool bVal = false;
 
-	if (PropertyName == TEXT("bUseBlendSpaceLoop")) bVal = S.bUseBlendSpaceLoop;
-	else if (PropertyName == TEXT("bEnableStart")) bVal = S.bEnableStart;
+	if (PropertyName == TEXT("bEnableStart")) bVal = S.bEnableStart;
 	else if (PropertyName == TEXT("bEnableStartDM")) bVal = S.bEnableStartDM;
 	else if (PropertyName == TEXT("bEnableStartStrideWarping")) bVal = S.bEnableStartStrideWarping;
 	else if (PropertyName == TEXT("bEnableStop")) bVal = S.bEnableStop;
@@ -539,8 +522,7 @@ void SLTDebugPanel::OnToggleCheckChanged(FName PropertyName, ECheckBoxState NewS
 	FLAAnimToggleSettings S = Settings->GetToggleSettings();
 	const bool bNew = (NewState == ECheckBoxState::Checked);
 
-	if (PropertyName == TEXT("bUseBlendSpaceLoop")) S.bUseBlendSpaceLoop = bNew;
-	else if (PropertyName == TEXT("bEnableStart")) S.bEnableStart = bNew;
+	if (PropertyName == TEXT("bEnableStart")) S.bEnableStart = bNew;
 	else if (PropertyName == TEXT("bEnableStartDM")) S.bEnableStartDM = bNew;
 	else if (PropertyName == TEXT("bEnableStartStrideWarping")) S.bEnableStartStrideWarping = bNew;
 	else if (PropertyName == TEXT("bEnableStop")) S.bEnableStop = bNew;
@@ -563,12 +545,6 @@ void SLTDebugPanel::OnToggleCheckChanged(FName PropertyName, ECheckBoxState NewS
 		DS.ToggleSettings = S;
 		DebugSubsystem->SetDebugState(DS);
 	}
-}
-
-bool SLTDebugPanel::IsBlendSpaceMode() const
-{
-	const ULASettings* Settings = ULASettings::GetConst();
-	return Settings ? Settings->GetToggleSettings().bUseBlendSpaceLoop : true;
 }
 
 bool SLTDebugPanel::IsStartEnabled() const
@@ -763,8 +739,7 @@ bool SLTDebugPanel::IsToggleVisibleForCurrentCharacterSet(FName PropertyName) co
 	if (!CharacterSet) return true;
 
 	const FLAAnimToggleSettings& S = CharacterSet->DebugToggleVisibility;
-	if (PropertyName == TEXT("bUseBlendSpaceLoop")) return S.bUseBlendSpaceLoop;
-	else if (PropertyName == TEXT("bEnableStart")) return S.bEnableStart;
+	if (PropertyName == TEXT("bEnableStart")) return S.bEnableStart;
 	else if (PropertyName == TEXT("bEnableStartDM")) return S.bEnableStartDM;
 	else if (PropertyName == TEXT("bEnableStartStrideWarping")) return S.bEnableStartStrideWarping;
 	else if (PropertyName == TEXT("bEnableStop")) return S.bEnableStop;

@@ -9,50 +9,48 @@ struct FLAAnimToggleSettings
 {
 	GENERATED_BODY()
 
-	//是否 使用BlendSpace，默认关闭，开启以后关闭下列几乎所有选项
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	bool bUseBlendSpaceLoop = false;
+
 	//开启Start动画
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "!bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool bEnableStart = true;
 	//开启Start动画的DistanceMatch
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableStart && !bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableStart", EditConditionHides))
 	bool bEnableStartDM = true;
 	//开启Start动画的StrideWarping
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableStart && !bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableStart", EditConditionHides))
 	bool bEnableStartStrideWarping = true;	
 	 //开启Stop动画
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "!bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool bEnableStop = true;
    // 开启Cycle动画的DistanceMatch
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableStop && !bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableStop", EditConditionHides))
 	bool bEnableStopDM = true;
 	 // 开启Stop动画的StrideWarping
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableStop && !bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableStop", EditConditionHides))
    bool bEnableStopStrideWarping = true;
 	// 开启Cycle动画的DistanceMatch
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "!bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool bEnableCycleDM = true;
 	// 开启Cycle动画的StrideWarping
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "!bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
    bool bEnableCycleStrideWarping = true;
 	// 开启Pivot动画
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "!bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool bEnablePivot = true;
 	// 开启Pivot动画的StrideWarping. Pivot必须开启DM，不开配置
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnablePivot && !bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnablePivot", EditConditionHides))
 	bool bEnablePivotStrideWarping= true;
 	// 开启AimOffset动画
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "!bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool bEnableAimOffset = true;
 	// 开启TurnInPlace动画
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableAimOffset && !bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "bEnableAimOffset", EditConditionHides))
 	bool bEnableTurnInPlace = true;
 	// 开启FootIK动画
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "!bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool bEnableFootIK = true;
 	// 开启Lean动画
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (EditCondition = "!bUseBlendSpaceLoop", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool bEnableLean = true;
 };
 

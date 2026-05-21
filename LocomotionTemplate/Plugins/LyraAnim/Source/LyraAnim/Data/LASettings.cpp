@@ -16,7 +16,6 @@ void ULASettings::DiffAndBroadcast(const FLAAnimToggleSettings& Old, const FLAAn
 #define LA_DIFF_BOOL(Prop) \
 	if (Old.Prop != New.Prop) OnToggleChanged.Broadcast(FName(TEXT(#Prop)), New.Prop);
 
-	LA_DIFF_BOOL(bUseBlendSpaceLoop);
 	LA_DIFF_BOOL(bEnableStart);
 	LA_DIFF_BOOL(bEnableStartDM);
 	LA_DIFF_BOOL(bEnableStartStrideWarping);

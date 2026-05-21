@@ -15,8 +15,6 @@ class LOCOMOTIONTEMPLATE_API ULTCharacterSet : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	ULTCharacterSet();
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Display")
 	FText DisplayName;
 
